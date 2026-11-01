@@ -147,6 +147,9 @@ function flash(t){flashEl.textContent=t||'✓';flashEl.className='flash show';se
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 function addReveal(html){const r=document.createElement('div');r.className='reveal';r.innerHTML=html;stage.querySelector('.card').appendChild(r);unlock();}
 
+/* URL-hash position: #m{module}b{beat} opens a beat directly (used by review links from the other courses) */
+function setHash(){try{const h=view==='module'?('#m'+curM+'b'+beat):'';if((location.hash||'')!==h)history.replaceState(null,'',h||location.pathname+location.search);}catch(e){}}
+function parseHash(){const m=/^#m(\d+)b(\d+)$/.exec(location.hash||'');return m?{curM:+m[1],beat:+m[2]}:null;}
 function renderMenu(){
   view='menu';footer.style.display='none';hintbox.className='hintbox';hintbox.innerHTML='';
   document.getElementById('backBtn').style.display='none';document.getElementById('pbarWrap').style.display='none';
@@ -158,9 +161,9 @@ function renderMenu(){
       <div class="mtitle">${m.title}</div><div class="msub">${m.sub}</div></div>`;});
   stage.innerHTML=html;
   stage.querySelectorAll('.mcard').forEach(c=>{const i=parseInt(c.dataset.i);if(MODULES[i].ready)c.onclick=()=>openModule(i);});
-  scrollTop();
+  scrollTop();setHash();
 }
-function openModule(i){curM=i;beat=0;view='module';footer.style.display='flex';contBtn.style.display='';hintBtn.style.display='';
+function openModule(i,b){curM=i;beat=b||0;view='module';footer.style.display='flex';contBtn.style.display='';hintBtn.style.display='';
   document.getElementById('backBtn').style.display='block';document.getElementById('pbarWrap').style.display='block';
   document.getElementById('kick').className='kick';renderBeat();}
 function renderBeat(){
@@ -169,7 +172,7 @@ function renderBeat(){
   document.getElementById('kick').textContent=M.title;
   document.getElementById('stepLbl').textContent=(beat+1)+' / '+M.beats.length;
   document.getElementById('pfill').style.width=Math.round((beat+1)/M.beats.length*100)+'%';
-  contBtn.textContent=beat===M.beats.length-1?'Finish':'Continue';document.getElementById('prevBtn').style.display=(beat>0||recallReturn)?'block':'none';scrollTop();
+  contBtn.textContent=beat===M.beats.length-1?'Finish':'Continue';document.getElementById('prevBtn').style.display=(beat>0||recallReturn)?'block':'none';scrollTop();setHash();
 }
 hintBtn.onclick=()=>{if(hintIdx<hints.length){hintbox.innerHTML=hints[hintIdx];hintbox.className='hintbox show';hintIdx++;if(hintIdx>=hints.length)unlock();}};
 contBtn.onclick=()=>{const M=MODULES[curM];if(beat<M.beats.length-1){beat++;renderBeat();}else finish();};
@@ -1683,7 +1686,11 @@ function m6_eckart(){
 
 /* ============ boot ============ */
 window.onerror=function(m,s,l){console.error(m,l);};
-renderMenu();
+function bootFromHash(){const h=parseHash();
+  if(h&&MODULES[h.curM]&&MODULES[h.curM].ready){recallReturn=null;openModule(h.curM,Math.max(0,Math.min(h.beat,MODULES[h.curM].beats.length-1)));}
+  else renderMenu();}
+window.addEventListener('hashchange',()=>{const h=parseHash();if(h&&!(view==='module'&&h.curM===curM&&h.beat===beat))bootFromHash();});
+bootFromHash();
 </script>
 </body>
 </html>
