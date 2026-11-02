@@ -98,6 +98,10 @@
   .hintbox.show{display:block;}
   /* menu */
   .mcard{cursor:pointer;transition:border-color .15s,transform .08s;} .mcard.lock{opacity:.55;cursor:default;}
+  .ccard{background:rgba(232,184,75,.04);border:1px dashed rgba(232,184,75,.45);box-shadow:none;padding:13px 15px;}
+  .ccard .mnum{color:var(--gold);} .ccard .mtitle{font-size:15.5px;margin:6px 0 4px;} .ccard .msub{font-size:13px;}
+  .mstat.plan{color:var(--gold);background:rgba(232,184,75,.12);}
+  .ctag{display:inline-block;font-size:10.5px;color:var(--muted);border:1px solid var(--line);border-radius:20px;padding:1px 8px;margin:7px 5px 0 0;}
   .mtop{display:flex;align-items:center;gap:9px;} .mnum{font-family:var(--mono);font-size:12px;color:var(--muted2);}
   .mstat{margin-left:auto;font-weight:650;font-size:11px;padding:3px 9px;border-radius:999px;}
   .mstat.done{color:var(--good);background:var(--good2);} .mstat.todo{color:var(--accent);background:rgba(88,196,221,.12);} .mstat.soon{color:var(--muted2);background:#141e2c;}
@@ -150,6 +154,19 @@ function addReveal(html){const r=document.createElement('div');r.className='reve
 /* URL-hash position: #m{module}b{beat} opens a beat directly (used by review links from the other courses) */
 function setHash(){try{const h=view==='module'?('#m'+curM+'b'+beat):'';if((location.hash||'')!==h)history.replaceState(null,'',h||location.pathname+location.search);}catch(e){}}
 function parseHash(){const m=/^#m(\d+)b(\d+)$/.exec(location.hash||'');return m?{curM:+m[1],beat:+m[2]}:null;}
+/* Capstone projects: built in their own GitHub repos, interleaved after the module that unlocks them */
+const CAPSTONES=[
+ {after:'m1',title:'Transform & render engine',sub:'2-D and 3-D rotations, scaling, and perspective projection as matrices \u2014 the linear algebra inside a graphics pipeline.',tags:['graphics']},
+ {after:'m1',title:'Fast matrix library (mini-BLAS)',sub:'Your own GEMM: cache-blocked, tiled, and SIMD-vectorized matrix multiply, benchmarked against NumPy \u2014 the infrastructure under everything.',tags:['infrastructure','performance']},
+ {after:'m2',title:'Linear-system solver',sub:'Gaussian elimination and LU factorization, applied to a resistor network (Kirchhoff) or a truss (statics) \u2014 a tiny SPICE.',tags:['engineering']},
+ {after:'m3',title:'Least-squares engine',sub:'Fit by the normal equations, then the numerically stable QR / Gram\u2013Schmidt way \u2014 the guts of lstsq \u2014 for linear and polynomial regression.',tags:['ML']},
+ {after:'m3',title:'FFT \u2192 audio fingerprinting',sub:'The Cooley\u2013Tukey FFT from scratch, then a Shazam-style fingerprinter that names a clip from its spectrogram.',tags:['paper','audio']},
+ {after:'m4',title:'PageRank',sub:'Reimplement Brin & Page (1998): the random surfer\u2019s stationary distribution as a dominant eigenvector, by the power method, on a real crawl.',tags:['paper','algorithm']},
+ {after:'m5',title:'PCA & eigenfaces',sub:'Face recognition by eigendecomposing the covariance matrix (Turk\u2013Pentland) \u2014 dimensionality reduction you can see.',tags:['paper','ML']},
+ {after:'m5',title:'Spectral graph clustering',sub:'Find communities in a network from the eigenvectors of its graph Laplacian.',tags:['algorithm']},
+ {after:'m6',title:'Image compression + recommender',sub:'Low-rank SVD for image compression, then a Netflix-Prize-style matrix-factorization recommender.',tags:['ML','product']},
+ {after:'m6',title:'Latent Semantic Analysis',sub:'Search documents by meaning: an SVD of the term\u2013document matrix, querying in the reduced space.',tags:['search']},
+];
 function renderMenu(){
   view='menu';footer.style.display='none';hintbox.className='hintbox';hintbox.innerHTML='';
   document.getElementById('backBtn').style.display='none';document.getElementById('pbarWrap').style.display='none';
@@ -158,7 +175,9 @@ function renderMenu(){
   let html=`<div class="card"><h1>Linear Algebra, as Operators</h1><p class="lede">A course for people heading into machine learning. We treat matrices not as grids of numbers but as <em>linear maps</em> — functions that move space — because that's the view every ML paper silently assumes. Guided discovery, real proofs, runnable NumPy, and problems at the level you'd meet in Strang.</p></div>`;
   MODULES.forEach((m,i)=>{const done=completed[m.id];const st=done?['done','✓ Done']:(m.ready?['todo','Start']:['soon','Soon']);
     html+=`<div class="card mcard${m.ready?'':' lock'}" data-i="${i}"><div class="mtop"><span class="mnum">Module ${i+1}</span><span class="mstat ${st[0]}">${st[1]}</span></div>
-      <div class="mtitle">${m.title}</div><div class="msub">${m.sub}</div></div>`;});
+      <div class="mtitle">${m.title}</div><div class="msub">${m.sub}</div></div>`;
+    CAPSTONES.filter(c=>c.after===m.id).forEach(c=>{html+=`<div class="card ccard"><div class="mtop"><span class="mnum">Capstone \u00b7 unlocked by Module ${i+1}</span><span class="mstat ${c.done?'done':'plan'}">${c.done?'\u2713 Built':'Planned'}</span></div>
+      <div class="mtitle">${c.title}</div><div class="msub">${c.sub}</div>${c.tags.map(t=>`<span class="ctag">${t}</span>`).join('')}</div>`;});});
   stage.innerHTML=html;
   stage.querySelectorAll('.mcard').forEach(c=>{const i=parseInt(c.dataset.i);if(MODULES[i].ready)c.onclick=()=>openModule(i);});
   scrollTop();setHash();
