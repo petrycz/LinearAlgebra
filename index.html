@@ -1067,7 +1067,7 @@ function m4_eigencoords(){
 }
 function m4_diagonalize(){
   stage.innerHTML=`<div class="card"><h2>Packaging it: A = P D P⁻¹</h2>
-    <p>Last beat you applied A the easy way: <b>rewrite</b> v in eigen-coordinates, then <b>scale</b> each piece by its own λ and recombine. This beat turns each step into its own matrix — a <b>rewrite</b>, a <b>scale</b>, and a <b>rebuild</b> — then shows that multiplying the three together <em>is</em> A. The result is the factorization <span class="mono">A = P D P⁻¹</span>, which we'll <em>derive</em>, not just assert.</p>
+    <p>Last beat you found a vector's <b>eigen-coordinates</b> — for <span class="mono">v = (5, 1)</span> they came out to <span class="mono">(a, b) = (3, 2)</span>. That is the setup for applying A cheaply, in three moves: <b>rewrite</b> the vector in eigen-coordinates, <b>scale</b> each coordinate by its eigenvalue, then <b>rebuild</b> an ordinary vector. Each of those three moves is a matrix. This beat names the three, carries <span class="mono">v</span> through them step by step, and <em>derives</em> that their product is exactly A — the factorization <span class="mono">A = P D P⁻¹</span>.</p>
     <p><b>P — rebuild.</b> Put the eigenvectors in the columns:</p>
     <div class="eqbox">P = ${mat('1','1','1','−1')}&nbsp;&nbsp;<span style="color:#5d7186">columns are e₊, e₋</span></div>
     <p>P turns eigen-coordinates back into an ordinary vector: <span class="mono">P·(a,b) = a(1,1) + b(1,−1)</span>. For (a,b) = (3,2): <span class="mono">P(3,2) = (3+2, 3−2) = (5, 1) = v</span>. ✓</p>
