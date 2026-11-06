@@ -100,6 +100,10 @@
   .mcard{cursor:pointer;transition:border-color .15s,transform .08s;} .mcard.lock{opacity:.55;cursor:default;}
   .ccard{background:rgba(232,184,75,.04);border:1px dashed rgba(232,184,75,.45);box-shadow:none;padding:13px 15px;}
   .ccard .mnum{color:var(--gold);} .ccard .mtitle{font-size:15.5px;margin:6px 0 4px;} .ccard .msub{font-size:13px;}
+  .pcard{background:rgba(169,139,255,.04);border:1px solid rgba(169,139,255,.32);border-left:3px solid #a98bff;box-shadow:none;padding:11px 15px;}
+  .pcard .mnum{color:#a98bff;} .pcard .mtitle{font-size:15px;margin:5px 0 3px;} .pcard .msub{font-size:13px;}
+  .pcard.md{border-left-color:var(--gold);} .pcard.md .mnum{color:var(--gold);}
+  .mstat.pread{color:#a98bff;background:rgba(169,139,255,.12);} .pcard.md .mstat.pread{color:var(--gold);background:rgba(232,184,75,.12);}
   .mstat.plan{color:var(--gold);background:rgba(232,184,75,.12);}
   .ctag{display:inline-block;font-size:10.5px;color:var(--muted);border:1px solid var(--line);border-radius:20px;padding:1px 8px;margin:7px 5px 0 0;}
   .mtop{display:flex;align-items:center;gap:9px;} .mnum{font-family:var(--mono);font-size:12px;color:var(--muted2);}
@@ -167,6 +171,13 @@ const CAPSTONES=[
  {after:'m6',title:'Image compression + recommender',sub:'Low-rank SVD for image compression, then a Netflix-Prize-style matrix-factorization recommender.',tags:['ML','product']},
  {after:'m6',title:'Latent Semantic Analysis',sub:'Search documents by meaning: an SVD of the term\u2013document matrix, querying in the reduced space.',tags:['search']},
 ];
+/* Research papers: read in three passes (skim the claim, re-derive the equations, reproduce one result + a short note), interleaved on the menu after the module that unlocks them */
+const PAPERS=[
+ {after:'m5',title:'Pearson 1901',note:'the original PCA',md:0},
+ {after:'m6',title:'Eckart & Young 1936',note:'best low-rank approximation (SVD)',md:0},
+ {after:'m6',title:'Koren et al. 2009',note:'Netflix-Prize matrix factorization',md:1},
+ {after:'m6',title:'Halko, Martinsson & Tropp 2011',note:'randomized SVD at scale',md:1},
+];
 function renderMenu(){
   view='menu';footer.style.display='none';hintbox.className='hintbox';hintbox.innerHTML='';
   document.getElementById('backBtn').style.display='none';document.getElementById('pbarWrap').style.display='none';
@@ -177,7 +188,9 @@ function renderMenu(){
     html+=`<div class="card mcard${m.ready?'':' lock'}" data-i="${i}"><div class="mtop"><span class="mnum">Module ${i+1}</span><span class="mstat ${st[0]}">${st[1]}</span></div>
       <div class="mtitle">${m.title}</div><div class="msub">${m.sub}</div></div>`;
     CAPSTONES.filter(c=>c.after===m.id).forEach(c=>{html+=`<div class="card ccard"><div class="mtop"><span class="mnum">Capstone \u00b7 unlocked by Module ${i+1}</span><span class="mstat ${c.done?'done':'plan'}">${c.done?'\u2713 Built':'Planned'}</span></div>
-      <div class="mtitle">${c.title}</div><div class="msub">${c.sub}</div>${c.tags.map(t=>`<span class="ctag">${t}</span>`).join('')}</div>`;});});
+      <div class="mtitle">${c.title}</div><div class="msub">${c.sub}</div>${c.tags.map(t=>`<span class="ctag">${t}</span>`).join('')}</div>`;});
+    PAPERS.filter(p=>p.after===m.id).forEach(p=>{html+=`<div class="card pcard${p.md?' md':''}"><div class="mtop"><span class="mnum">${p.md?'Frontier paper':'Paper'} \u00b7 read after ${m.addon?'Add-on '+m.addon:'Module '+(i+1)}</span><span class="mstat pread">To read</span></div>
+      <div class="mtitle">${p.title}</div><div class="msub">${p.note}</div></div>`;});});
   stage.innerHTML=html;
   stage.querySelectorAll('.mcard').forEach(c=>{const i=parseInt(c.dataset.i);if(MODULES[i].ready)c.onclick=()=>openModule(i);});
   scrollTop();setHash();
