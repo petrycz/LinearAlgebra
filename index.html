@@ -173,10 +173,16 @@ const CAPSTONES=[
 ];
 /* Research papers: read in three passes (skim the claim, re-derive the equations, reproduce one result + a short note), interleaved on the menu after the module that unlocks them */
 const PAPERS=[
- {after:'m5',title:'Pearson 1901',note:'the original PCA',md:0},
- {after:'m6',title:'Eckart & Young 1936',note:'best low-rank approximation (SVD)',md:0},
- {after:'m6',title:'Koren et al. 2009',note:'Netflix-Prize matrix factorization',md:1},
- {after:'m6',title:'Halko, Martinsson & Tropp 2011',note:'randomized SVD at scale',md:1},
+ {after:'m3',title:'Pearson 1901',note:'the original PCA',md:0,part:'1 of 2',sec:'Setup: fit a line by minimizing perpendicular (not vertical) distances — projection & orthogonality'},
+ {after:'m5',title:'Pearson 1901',note:'the original PCA',md:0,part:'2 of 2',sec:'Solution: the best-fit line/plane lies along the principal axis of the correlation ellipsoid — a symmetric eigenproblem'},
+ {after:'m5',title:'Eckart & Young 1936',note:'best low-rank approximation (SVD)',md:0,part:'1 of 2',sec:'Setup: approximating a matrix by one of lower rank; reducing to diagonal form with orthogonal transformations'},
+ {after:'m6',title:'Eckart & Young 1936',note:'best low-rank approximation (SVD)',md:0,part:'2 of 2',sec:'Main theorem: truncate the SVD — the best rank-k approximation and its error'},
+ {after:'m2',title:'Koren et al. 2009',note:'Netflix-Prize matrix factorization',md:1,part:'1 of 3',sec:'Intro + \'Matrix factorization methods\': users and items as vectors in a low-dimensional factor space'},
+ {after:'m3',title:'Koren et al. 2009',note:'Netflix-Prize matrix factorization',md:1,part:'2 of 3',sec:'\'A basic matrix factorization model\': ratings as dot products, regularized squared error'},
+ {after:'m6',title:'Koren et al. 2009',note:'Netflix-Prize matrix factorization',md:1,part:'3 of 3',sec:'\'Learning algorithms\' (SGD, ALS), biases and temporal dynamics — why plain SVD fails on missing entries'},
+ {after:'m1',title:'Halko, Martinsson & Tropp 2011',note:'randomized SVD at scale',md:1,part:'1 of 3',sec:'§1 overview: the randomized range finder — multiply by a random matrix'},
+ {after:'m3',title:'Halko, Martinsson & Tropp 2011',note:'randomized SVD at scale',md:1,part:'2 of 3',sec:'§4 (Stage A): orthonormalize the sample (QR) to capture the range'},
+ {after:'m6',title:'Halko, Martinsson & Tropp 2011',note:'randomized SVD at scale',md:1,part:'3 of 3',sec:'§5 (Stage B): SVD of the small projected matrix; skim the Part III error bounds'},
 ];
 function renderMenu(){
   view='menu';footer.style.display='none';hintbox.className='hintbox';hintbox.innerHTML='';
@@ -189,8 +195,8 @@ function renderMenu(){
       <div class="mtitle">${m.title}</div><div class="msub">${m.sub}</div></div>`;
     CAPSTONES.filter(c=>c.after===m.id).forEach(c=>{html+=`<div class="card ccard"><div class="mtop"><span class="mnum">Capstone \u00b7 unlocked by Module ${i+1}</span><span class="mstat ${c.done?'done':'plan'}">${c.done?'\u2713 Built':'Planned'}</span></div>
       <div class="mtitle">${c.title}</div><div class="msub">${c.sub}</div>${c.tags.map(t=>`<span class="ctag">${t}</span>`).join('')}</div>`;});
-    PAPERS.filter(p=>p.after===m.id).forEach(p=>{html+=`<div class="card pcard${p.md?' md':''}"><div class="mtop"><span class="mnum">${p.md?'Frontier paper':'Paper'} \u00b7 read after ${m.addon?'Add-on '+m.addon:'Module '+(i+1)}</span><span class="mstat pread">To read</span></div>
-      <div class="mtitle">${p.title}</div><div class="msub">${p.note}</div></div>`;});});
+    PAPERS.filter(p=>p.after===m.id).forEach(p=>{html+=`<div class="card pcard${p.md?' md':''}"><div class="mtop"><span class="mnum">${p.md?'Frontier paper':'Paper'}${p.part?' \u00b7 part '+p.part:''} \u00b7 read after ${m.addon?'Add-on '+m.addon:'Module '+(i+1)}</span><span class="mstat pread">To read</span></div>
+      <div class="mtitle">${p.title}</div><div class="msub">${p.sec?p.sec+'<br><span style="color:var(--muted2)">'+p.note+'</span>':p.note}</div></div>`;});});
   stage.innerHTML=html;
   stage.querySelectorAll('.mcard').forEach(c=>{const i=parseInt(c.dataset.i);if(MODULES[i].ready)c.onclick=()=>openModule(i);});
   scrollTop();setHash();
